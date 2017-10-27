@@ -36,7 +36,7 @@ private:
   int do_variables(JsonValue value, const char* grp_name, int grp_id);
   int do_attributes(JsonValue value, const char* grp_name, int grp_id);
   int get_variable_data(JsonValue value, const char* var_name, int grp_id);
-  int dump_value(JsonValue value);
+  int dump_value(JsonValue value, int indent = 0);
 };
 
 #endif

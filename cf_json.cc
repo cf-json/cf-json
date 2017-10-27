@@ -9,6 +9,7 @@
 #include <assert.h>
 #include "cf_json.hh"
 
+const int SHIFT_WIDTH = 4;
 void dump_string(const char *s);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,17 +79,10 @@ void cf_json::do_objects_group(JsonValue value, const char* grp_name, int grp_id
 {
   //parameter must be JSON object 
   assert(value.getTag() == JSON_OBJECT);
-  JsonNode *node;
 
-  std::cout << grp_name << ": has ";
-  for (node = value.toNode(); node != nullptr; node = node->next)
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
-    std::cout << node->key << ",";
-  }
-  std::cout << std::endl;
-
-  for (node = value.toNode(); node != nullptr; node = node->next)
-  {
+    assert(node->value.getTag() == JSON_OBJECT);
     if (std::string(node->key).compare("groups") == 0)
     {
       do_groups(node->value, grp_name, grp_id);
@@ -205,13 +199,6 @@ int cf_json::get_variable_data(JsonValue value, const char* var_name, int grp_id
   //parameter must be JSON object 
   assert(value.getTag() == JSON_OBJECT);
 
-  std::cout << var_name << ": has ";
-  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
-  {
-    std::cout << node->key << ",";
-  }
-  std::cout << std::endl;
-
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
     if (std::string(node->key).compare("shape") == 0)
@@ -262,33 +249,58 @@ int cf_json::get_variable_data(JsonValue value, const char* var_name, int grp_id
 //cf_json::dump_value
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::dump_value(JsonValue value)
+int cf_json::dump_value(JsonValue o, int indent)
 {
-  switch (value.getTag())
+  switch (o.getTag())
   {
   case JSON_NUMBER:
-    std::cout << value.toNumber();
+    fprintf(stdout, "%f", o.toNumber());
     break;
   case JSON_STRING:
-    dump_string(value.toString());
+    dump_string(o.toString());
     break;
   case JSON_ARRAY:
-
+    if (!o.toNode())
+    {
+      fprintf(stdout, "[]");
+      break;
+    }
+    fprintf(stdout, "[\n");
+    for (auto i : o)
+    {
+      fprintf(stdout, "%*s", indent + SHIFT_WIDTH, "");
+      dump_value(i->value, indent + SHIFT_WIDTH);
+      fprintf(stdout, i->next ? ",\n" : "\n");
+    }
+    fprintf(stdout, "%*s]", indent, "");
     break;
   case JSON_OBJECT:
-
+    if (!o.toNode())
+    {
+      fprintf(stdout, "{}");
+      break;
+    }
+    fprintf(stdout, "{\n");
+    for (auto i : o)
+    {
+      fprintf(stdout, "%*s", indent + SHIFT_WIDTH, "");
+      dump_string(i->key);
+      fprintf(stdout, ": ");
+      dump_value(i->value, indent + SHIFT_WIDTH);
+      fprintf(stdout, i->next ? ",\n" : "\n");
+    }
+    fprintf(stdout, "%*s}", indent, "");
     break;
   case JSON_TRUE:
-
+    fprintf(stdout, "true");
     break;
   case JSON_FALSE:
-
+    fprintf(stdout, "false");
     break;
   case JSON_NULL:
-
+    fprintf(stdout, "null");
     break;
   }
-
   return 0;
 }
 
@@ -299,10 +311,10 @@ int cf_json::dump_value(JsonValue value)
 void dump_string(const char *s)
 {
   fputc('"', stdout);
-  while (*s) 
+  while (*s)
   {
     int c = *s++;
-    switch (c) 
+    switch (c)
     {
     case '\b':
       fprintf(stdout, "\\b");
