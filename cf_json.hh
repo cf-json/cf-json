@@ -35,8 +35,8 @@ private:
   int do_dimensions(JsonValue value, const char* grp_name, int grp_id);
   int do_variables(JsonValue value, const char* grp_name, int grp_id);
   int do_attributes(JsonValue value, const char* grp_name, int grp_id);
-  int get_variables(JsonValue value, const char* var_name, int grp_id);
-  int get_attributes(JsonValue value, const char* obj_name, int grp_id);
+  int get_variable_data(JsonValue value, const char* var_name, int grp_id);
+  int dump_value(JsonValue value);
 };
 
 #endif

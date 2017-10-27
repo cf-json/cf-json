@@ -9,6 +9,8 @@
 #include <assert.h>
 #include "cf_json.hh"
 
+void dump_string(const char *s);
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //cf_json::convert
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,7 +164,7 @@ int cf_json::do_variables(JsonValue value, const char* grp_name, int grp_id)
     std::cout << grp_name << ":variable:" << node->key << std::endl;
 
     //get variables with name 'node->key'
-    if (get_variables(node->value, node->key, grp_id) < 0)
+    if (get_variable_data(node->value, node->key, grp_id) < 0)
     {
       return -1;
     }
@@ -185,7 +187,7 @@ int cf_json::do_attributes(JsonValue value, const char* grp_name, int grp_id)
     std::cout << node->key << ",";
 
     //get attributes with name 'node->key'
-    if (get_attributes(node->value, node->key, grp_id) < 0)
+    if (dump_value(node->value) < 0)
     {
       return -1;
     }
@@ -195,24 +197,137 @@ int cf_json::do_attributes(JsonValue value, const char* grp_name, int grp_id)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-//cf_json::get_variables
+//cf_json::get_variable_data
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::get_variables(JsonValue value, const char* var_name, int grp_id)
+int cf_json::get_variable_data(JsonValue value, const char* var_name, int grp_id)
 {
+  //parameter must be JSON object 
+  assert(value.getTag() == JSON_OBJECT);
+
+  std::cout << var_name << ": has ";
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
+  {
+    std::cout << node->key << ",";
+  }
+  std::cout << std::endl;
+
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
+  {
+    if (std::string(node->key).compare("shape") == 0)
+    {
+      //"shape" object must be a JSON array 
+      assert(node->value.getTag() == JSON_ARRAY);
+      JsonValue arr_dimensions = node->value;
+
+      size_t arr_size = 0; //size of dimensions array
+      std::cout << ":dimensions:";
+      for (JsonNode *n = arr_dimensions.toNode(); n != nullptr; n = n->next)
+      {
+        arr_size++;
+        assert(n->value.getTag() == JSON_STRING);
+        std::cout << "\"" << n->value.toString() << "\",";
+      }
+      std::cout << std::endl;
+
+    }
+    else if (std::string(node->key).compare("type") == 0)
+    {
+      //"type" object must be a JSON string 
+      assert(node->value.getTag() == JSON_STRING);
+      std::cout << ":type:";
+      std::cout << "\"" << node->value.toString() << "\"" << std::endl;
+
+    }
+    else if (std::string(node->key).compare("data") == 0)
+    {
+      //"data" object can be a JSON array for netCDF numerical types 
+      //or a JSON string for netCDF char 
+      assert(node->value.getTag() == JSON_ARRAY || node->value.getTag() == JSON_STRING);
+      std::cout << ":data:";
+      std::cout << std::endl;
+    }
+    else if (std::string(node->key).compare("attributes") == 0)
+    {
+      std::cout << ":attributes:";
+      do_attributes(node->value, node->key, grp_id);
+      std::cout << std::endl;
+    }
+  }
 
   return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-//cf_json::get_attributes
+//cf_json::dump_value
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::get_attributes(JsonValue value, const char* obj_name, int grp_id)
+int cf_json::dump_value(JsonValue value)
 {
+  switch (value.getTag())
+  {
+  case JSON_NUMBER:
+    std::cout << value.toNumber();
+    break;
+  case JSON_STRING:
+    dump_string(value.toString());
+    break;
+  case JSON_ARRAY:
 
+    break;
+  case JSON_OBJECT:
+
+    break;
+  case JSON_TRUE:
+
+    break;
+  case JSON_FALSE:
+
+    break;
+  case JSON_NULL:
+
+    break;
+  }
 
   return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//dump_string
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void dump_string(const char *s)
+{
+  fputc('"', stdout);
+  while (*s) 
+  {
+    int c = *s++;
+    switch (c) 
+    {
+    case '\b':
+      fprintf(stdout, "\\b");
+      break;
+    case '\f':
+      fprintf(stdout, "\\f");
+      break;
+    case '\n':
+      fprintf(stdout, "\\n");
+      break;
+    case '\r':
+      fprintf(stdout, "\\r");
+      break;
+    case '\t':
+      fprintf(stdout, "\\t");
+      break;
+    case '\\':
+      fprintf(stdout, "\\\\");
+      break;
+    case '"':
+      fprintf(stdout, "\\\"");
+      break;
+    default:
+      fputc(c, stdout);
+    }
+  }
+  fprintf(stdout, "%s\"", s);
+}
