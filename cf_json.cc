@@ -72,20 +72,20 @@ int cf_json::convert(const char* file_name)
 //any of these JSON objects are located at each group
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void cf_json::do_objects_group(JsonValue obj, const char* grp_name, int grp_id)
+void cf_json::do_objects_group(JsonValue value, const char* grp_name, int grp_id)
 {
   //parameter must be JSON object 
-  assert(obj.getTag() == JSON_OBJECT);
+  assert(value.getTag() == JSON_OBJECT);
   JsonNode *node;
 
   std::cout << grp_name << ": has ";
-  for (node = obj.toNode(); node != nullptr; node = node->next)
+  for (node = value.toNode(); node != nullptr; node = node->next)
   {
     std::cout << node->key << ",";
   }
   std::cout << std::endl;
 
-  for (node = obj.toNode(); node != nullptr; node = node->next)
+  for (node = value.toNode(); node != nullptr; node = node->next)
   {
     if (std::string(node->key).compare("groups") == 0)
     {
@@ -110,8 +110,19 @@ void cf_json::do_objects_group(JsonValue obj, const char* grp_name, int grp_id)
 //cf_json::do_groups
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::do_groups(JsonValue obj, const char* grp_name, int grp_id)
+int cf_json::do_groups(JsonValue value, const char* grp_name, int grp_id)
 {
+  //parameter must be JSON object 
+  assert(value.getTag() == JSON_OBJECT);
+
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
+  {
+    assert(node->value.getTag() == JSON_OBJECT);
+    std::cout << grp_name << ":group:" << node->key << std::endl;
+
+    //iterate in subgroup with name 'node->key'
+    do_objects_group(node->value, node->key, grp_id);
+  }
 
   return 0;
 }
@@ -120,9 +131,18 @@ int cf_json::do_groups(JsonValue obj, const char* grp_name, int grp_id)
 //cf_json::do_dimensions
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::do_dimensions(JsonValue obj, const char* grp_name, int grp_id)
+int cf_json::do_dimensions(JsonValue value, const char* grp_name, int grp_id)
 {
+  //parameter must be JSON object 
+  assert(value.getTag() == JSON_OBJECT);
 
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
+  {
+    //dimension value must be a number
+    assert(node->value.getTag() == JSON_NUMBER);
+    int dim = (int)node->value.toNumber();
+    std::cout << grp_name << ":dimension:" << node->key << ":" << dim << std::endl;
+  }
 
   return 0;
 }
@@ -131,8 +151,22 @@ int cf_json::do_dimensions(JsonValue obj, const char* grp_name, int grp_id)
 //cf_json::do_variables
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::do_variables(JsonValue obj, const char* grp_name, int grp_id)
+int cf_json::do_variables(JsonValue value, const char* grp_name, int grp_id)
 {
+  //parameter must be JSON object 
+  assert(value.getTag() == JSON_OBJECT);
+
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
+  {
+    assert(node->value.getTag() == JSON_OBJECT);
+    std::cout << grp_name << ":variable:" << node->key << std::endl;
+
+    //get variables with name 'node->key'
+    if (get_variables(node->value, node->key, grp_id) < 0)
+    {
+      return -1;
+    }
+  }
 
   return 0;
 }
@@ -141,8 +175,21 @@ int cf_json::do_variables(JsonValue obj, const char* grp_name, int grp_id)
 //cf_json::do_attributes
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::do_attributes(JsonValue obj, const char* grp_name, int grp_id)
+int cf_json::do_attributes(JsonValue value, const char* grp_name, int grp_id)
 {
+  //parameter must be JSON object 
+  assert(value.getTag() == JSON_OBJECT);
+
+  for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
+  {
+    std::cout << node->key << ",";
+
+    //get attributes with name 'node->key'
+    if (get_attributes(node->value, node->key, grp_id) < 0)
+    {
+      return -1;
+    }
+  }
 
   return 0;
 }
@@ -151,7 +198,7 @@ int cf_json::do_attributes(JsonValue obj, const char* grp_name, int grp_id)
 //cf_json::get_variables
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::get_variables(JsonValue obj, const char* var_name, int grp_id)
+int cf_json::get_variables(JsonValue value, const char* var_name, int grp_id)
 {
 
   return 0;
@@ -161,7 +208,7 @@ int cf_json::get_variables(JsonValue obj, const char* var_name, int grp_id)
 //cf_json::get_attributes
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::get_attributes(JsonValue obj, const char* obj_name, int grp_id)
+int cf_json::get_attributes(JsonValue value, const char* obj_name, int grp_id)
 {
 
 

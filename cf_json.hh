@@ -30,13 +30,13 @@ public:
   int convert(const char* file_name);
 
 private:
-  void do_objects_group(JsonValue obj, const char* grp_name, int grp_id);
-  int do_groups(JsonValue obj, const char* grp_name, int grp_id);
-  int do_dimensions(JsonValue obj, const char* grp_name, int grp_id);
-  int do_variables(JsonValue obj, const char* grp_name, int grp_id);
-  int do_attributes(JsonValue obj, const char* grp_name, int grp_id);
-  int get_variables(JsonValue obj, const char* var_name, int grp_id);
-  int get_attributes(JsonValue obj, const char* obj_name, int grp_id);
+  void do_objects_group(JsonValue value, const char* grp_name, int grp_id);
+  int do_groups(JsonValue value, const char* grp_name, int grp_id);
+  int do_dimensions(JsonValue value, const char* grp_name, int grp_id);
+  int do_variables(JsonValue value, const char* grp_name, int grp_id);
+  int do_attributes(JsonValue value, const char* grp_name, int grp_id);
+  int get_variables(JsonValue value, const char* var_name, int grp_id);
+  int get_attributes(JsonValue value, const char* obj_name, int grp_id);
 };
 
 #endif
