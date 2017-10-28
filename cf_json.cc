@@ -9,6 +9,7 @@
 #include <assert.h>
 #include "cf_json.hh"
 
+const bool data_newline = false;
 const int SHIFT_WIDTH = 4;
 void dump_string(const char *s);
 
@@ -241,6 +242,27 @@ int cf_json::do_attributes(JsonValue value, const char* grp_name, int grp_id, in
 
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
+    //key, attribute name
+    fprintf(stdout, "%*s", indent + SHIFT_WIDTH, "");
+    dump_string(node->key);
+    fprintf(stdout, ":");
+
+    //attribute value 
+    assert(node->value.getTag() == JSON_NUMBER ||
+      node->value.getTag() == JSON_STRING ||
+      node->value.getTag() == JSON_ARRAY);
+    dump_value(node->value, indent + SHIFT_WIDTH);
+
+    //JSON object separator
+    if (node->next)
+    {
+      fprintf(stdout, "\n");
+      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
+    }
+    else
+    {
+      fprintf(stdout, "\n");
+    }
 
   }
 
@@ -315,14 +337,21 @@ int cf_json::dump_value(JsonValue o, int indent)
       fprintf(stdout, "[]");
       break;
     }
-    fprintf(stdout, "[\n");
+    fprintf(stdout, "[");
+    if (data_newline) fprintf(stdout, "\n");
     for (auto i : o)
     {
-      fprintf(stdout, "%*s", indent + SHIFT_WIDTH, "");
+      if (data_newline) fprintf(stdout, "%*s", indent + SHIFT_WIDTH, "");
       dump_value(i->value, indent + SHIFT_WIDTH);
-      fprintf(stdout, i->next ? ",\n" : "\n");
+      if (data_newline)
+        fprintf(stdout, i->next ? ",\n" : "\n");
+      else
+        fprintf(stdout, i->next ? "," : "");
     }
-    fprintf(stdout, "%*s]", indent, "");
+    if (data_newline)
+      fprintf(stdout, "%*s]", indent, "");
+    else
+      fprintf(stdout, "]");
     break;
   case JSON_OBJECT:
     if (!o.toNode())

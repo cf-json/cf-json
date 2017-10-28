@@ -18,7 +18,11 @@
     }
   },
   "attributes": {
-    "char_att": "foo"
+    "char_att": "foo",
+    "int_att": 37,
+    "float_att": 73.0,
+    "arr_int_att": [0, 1, 2],
+    "arr_char_att": ["foo","bar"]
   },
   "groups":{
     "g1":{
