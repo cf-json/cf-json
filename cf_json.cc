@@ -320,18 +320,20 @@ int cf_json::get_variable_data(JsonValue value, const char* var_name, int grp_id
         assert(n->value.getTag() == JSON_STRING);
       }
 
+      dump_value(node->value, indent + SHIFT_WIDTH);
     }
     else if (std::string(node->key).compare("type") == 0)
     {
       //"type" object must be a JSON string 
       assert(node->value.getTag() == JSON_STRING);
-
+      dump_value(node->value, indent + SHIFT_WIDTH);
     }
     else if (std::string(node->key).compare("data") == 0)
     {
       //"data" object can be a JSON array for netCDF numerical types 
       //or a JSON string for netCDF char 
       assert(node->value.getTag() == JSON_ARRAY || node->value.getTag() == JSON_STRING);
+      dump_value(node->value, indent + SHIFT_WIDTH);
     }
     else if (std::string(node->key).compare("attributes") == 0)
     {

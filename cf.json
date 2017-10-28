@@ -40,7 +40,7 @@
         "var_1":{
           "shape":["lat","lon"],
           "type":"float",
-          "data":[[1,2,3],[4,5,null]]
+          "data":[[1,null,3],[null,null,6]]
         }
         "var_2":{
           "shape":["lat"],
