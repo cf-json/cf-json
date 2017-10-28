@@ -117,7 +117,15 @@ void cf_json::do_objects_group(JsonValue value, const char* grp_name, int grp_id
     }
 
     //JSON object separator
-    fprintf(stdout, node->next ? ",\n" : "\n");
+    if (node->next)
+    {
+      fprintf(stdout, "\n");
+      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
+    }
+    else
+    {
+      fprintf(stdout, "\n");
+    }
   }
 
   //end JSON object
@@ -163,6 +171,9 @@ int cf_json::do_dimensions(JsonValue value, const char* grp_name, int grp_id, in
   //parameter must be JSON object 
   assert(value.getTag() == JSON_OBJECT);
 
+  //start JSON object
+  fprintf(stdout, "{\n");
+
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
     //dimension value must be a number
@@ -170,6 +181,9 @@ int cf_json::do_dimensions(JsonValue value, const char* grp_name, int grp_id, in
     int dim = (int)node->value.toNumber();
 
   }
+
+  //end JSON object
+  fprintf(stdout, "%*s}", indent, "");
 
   return 0;
 }
@@ -183,12 +197,17 @@ int cf_json::do_variables(JsonValue value, const char* grp_name, int grp_id, int
   //parameter must be JSON object 
   assert(value.getTag() == JSON_OBJECT);
 
+  //start JSON object
+  fprintf(stdout, "{\n");
+
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
     assert(node->value.getTag() == JSON_OBJECT);
 
   }
 
+  //end JSON object
+  fprintf(stdout, "%*s}", indent, "");
   return 0;
 }
 
@@ -201,11 +220,16 @@ int cf_json::do_attributes(JsonValue value, const char* grp_name, int grp_id, in
   //parameter must be JSON object 
   assert(value.getTag() == JSON_OBJECT);
 
+  //start JSON object
+  fprintf(stdout, "{\n");
+
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
 
   }
 
+  //end JSON object
+  fprintf(stdout, "%*s}", indent, "");
   return 0;
 }
 
