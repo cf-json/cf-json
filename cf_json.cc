@@ -10,8 +10,10 @@
 #include "cf_json.hh"
 
 const bool data_newline = false;
+const bool object_newline = false;
 const int SHIFT_WIDTH = 4;
 void dump_string(const char *s);
+void object_separator(JsonNode *node, int indent);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //cf_json::convert
@@ -118,15 +120,7 @@ void cf_json::do_objects_group(JsonValue value, const char* grp_name, int grp_id
     }
 
     //JSON object separator
-    if (node->next)
-    {
-      fprintf(stdout, "\n");
-      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
-    }
-    else
-    {
-      fprintf(stdout, "\n");
-    }
+    object_separator(node, indent);
   }
 
   //end JSON object
@@ -188,15 +182,7 @@ int cf_json::do_dimensions(JsonValue value, const char* grp_name, int grp_id, in
     fprintf(stdout, "%d", dim);
 
     //JSON object separator
-    if (node->next)
-    {
-      fprintf(stdout, "\n");
-      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
-    }
-    else
-    {
-      fprintf(stdout, "\n");
-    }
+    object_separator(node, indent);
   }
 
   //end JSON object
@@ -229,15 +215,7 @@ int cf_json::do_variables(JsonValue value, const char* grp_name, int grp_id, int
     get_variable_data(node->value, node->key, grp_id, indent + SHIFT_WIDTH);
 
     //JSON object separator
-    if (node->next)
-    {
-      fprintf(stdout, "\n");
-      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
-    }
-    else
-    {
-      fprintf(stdout, "\n");
-    }
+    object_separator(node, indent);
   }
 
   //end JSON object
@@ -271,16 +249,7 @@ int cf_json::do_attributes(JsonValue value, const char* grp_name, int grp_id, in
     dump_value(node->value, indent + SHIFT_WIDTH);
 
     //JSON object separator
-    if (node->next)
-    {
-      fprintf(stdout, "\n");
-      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
-    }
-    else
-    {
-      fprintf(stdout, "\n");
-    }
-
+    object_separator(node, indent);
   }
 
   //end JSON object
@@ -341,15 +310,7 @@ int cf_json::get_variable_data(JsonValue value, const char* var_name, int grp_id
     }
 
     //JSON object separator
-    if (node->next)
-    {
-      fprintf(stdout, "\n");
-      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
-    }
-    else
-    {
-      fprintf(stdout, "\n");
-    }
+    object_separator(node, indent);
   }
 
   //end JSON object
@@ -462,4 +423,22 @@ void dump_string(const char *s)
     }
   }
   fprintf(stdout, "%s\"", s);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//object_separator
+//print  JSON object separator(comma)
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void object_separator(JsonNode *node, int indent)
+{
+  if (node->next)
+  {
+    fprintf(stdout, "\n");
+    fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
+  }
+  else
+  {
+    fprintf(stdout, "\n");
+  }
 }
