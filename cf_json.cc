@@ -176,10 +176,26 @@ int cf_json::do_dimensions(JsonValue value, const char* grp_name, int grp_id, in
 
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
+    //key, dimension name
+    fprintf(stdout, "%*s", indent + SHIFT_WIDTH, "");
+    dump_string(node->key);
+    fprintf(stdout, ":");
+
     //dimension value must be a number
     assert(node->value.getTag() == JSON_NUMBER);
     int dim = (int)node->value.toNumber();
+    fprintf(stdout, "%d", dim);
 
+    //JSON object separator
+    if (node->next)
+    {
+      fprintf(stdout, "\n");
+      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
+    }
+    else
+    {
+      fprintf(stdout, "\n");
+    }
   }
 
   //end JSON object
