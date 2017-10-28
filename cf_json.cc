@@ -221,6 +221,23 @@ int cf_json::do_variables(JsonValue value, const char* grp_name, int grp_id, int
   {
     assert(node->value.getTag() == JSON_OBJECT);
 
+    fprintf(stdout, "%*s", indent + SHIFT_WIDTH, "");
+    dump_string(node->key);
+    fprintf(stdout, ": ");
+
+    //get objects
+    get_variable_data(node->value, node->key, grp_id, indent + SHIFT_WIDTH);
+
+    //JSON object separator
+    if (node->next)
+    {
+      fprintf(stdout, "\n");
+      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
+    }
+    else
+    {
+      fprintf(stdout, "\n");
+    }
   }
 
   //end JSON object
@@ -275,13 +292,21 @@ int cf_json::do_attributes(JsonValue value, const char* grp_name, int grp_id, in
 //cf_json::get_variable_data
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int cf_json::get_variable_data(JsonValue value, const char* var_name, int grp_id)
+int cf_json::get_variable_data(JsonValue value, const char* var_name, int grp_id, int indent)
 {
   //parameter must be JSON object 
   assert(value.getTag() == JSON_OBJECT);
 
+  //start JSON object
+  fprintf(stdout, "{\n");
+
   for (JsonNode *node = value.toNode(); node != nullptr; node = node->next)
   {
+    //key, object name
+    fprintf(stdout, "%*s", indent + SHIFT_WIDTH, "");
+    dump_string(node->key);
+    fprintf(stdout, ":");
+
     if (std::string(node->key).compare("shape") == 0)
     {
       //"shape" object must be a JSON array 
@@ -310,9 +335,23 @@ int cf_json::get_variable_data(JsonValue value, const char* var_name, int grp_id
     }
     else if (std::string(node->key).compare("attributes") == 0)
     {
-      do_attributes(node->value, node->key, grp_id);
+      do_attributes(node->value, node->key, grp_id, indent + SHIFT_WIDTH);
+    }
+
+    //JSON object separator
+    if (node->next)
+    {
+      fprintf(stdout, "\n");
+      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
+    }
+    else
+    {
+      fprintf(stdout, "\n");
     }
   }
+
+  //end JSON object
+  fprintf(stdout, "%*s}", indent, "");
 
   return 0;
 }
