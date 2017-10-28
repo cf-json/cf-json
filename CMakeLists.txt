@@ -99,7 +99,7 @@ endif()
 
 find_path(NETCDF_INCLUDE netcdf.h ${find_opt})
 if(NOT NETCDF_INCLUDE)
-  message("${color_red}-- netcdf.h header file not found. Not generating netCDF file${color_reset}")
+  message("${color_magenta}-- netcdf.h header file not found. Not generating netCDF file${color_reset}")
 else()
   message("-- Found netcdf.h header file at: " ${NETCDF_INCLUDE})
   add_definitions(-DHAVE_NETCDF)
