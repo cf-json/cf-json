@@ -434,8 +434,15 @@ void object_separator(JsonNode *node, int indent)
 {
   if (node->next)
   {
-    fprintf(stdout, "\n");
-    fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
+    if (object_newline)
+    {
+      fprintf(stdout, "\n");
+      fprintf(stdout, "%*s,\n", indent + SHIFT_WIDTH, "");
+    }
+    else
+    {
+      fprintf(stdout, ",\n");
+    }
   }
   else
   {
