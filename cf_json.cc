@@ -5,15 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "gason.h"
-#include <netcdf.h>
 #include <assert.h>
 #include "cf_json.hh"
+#include "cf_api.hh"
 
 const bool data_newline = false;
 const bool object_newline = false;
 const int SHIFT_WIDTH = 4;
-void dump_string(const char *s);
-void object_separator(JsonNode *node, int indent);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //cf_json::convert
@@ -55,14 +53,14 @@ int cf_json::convert(const char* file_name)
 
   std::string name(file_name);
   name += ".nc";
-  if (nc_create(name.c_str(), NC_WRITE, &grp_id) != NC_NOERR)
+  if (cf_create(name.c_str(), &grp_id) != 0)
   {
     return -1;
   }
 
   do_objects_group(value, "/", grp_id);
 
-  if (nc_close(grp_id) != NC_NOERR)
+  if (cf_close(grp_id) != 0)
   {
 
   }
@@ -386,10 +384,10 @@ int cf_json::dump_value(JsonValue o, int indent)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-//dump_string
+//cf_json::dump_string
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void dump_string(const char *s)
+void cf_json::dump_string(const char *s)
 {
   fputc('"', stdout);
   while (*s)
@@ -426,11 +424,11 @@ void dump_string(const char *s)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-//object_separator
+//cf_json::object_separator
 //print  JSON object separator(comma)
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void object_separator(JsonNode *node, int indent)
+void cf_json::object_separator(JsonNode *node, int indent)
 {
   if (node->next)
   {

@@ -14,8 +14,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <netcdf.h>
 #include "gason.h"
+#ifdef HAVE_NETCDF
+#include <netcdf.h>
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //cf_json
@@ -37,6 +39,8 @@ private:
   int do_attributes(JsonValue value, const char* grp_name, int grp_id, int indent = 0);
   int get_variable_data(JsonValue value, const char* var_name, int grp_id, int indent = 0);
   int dump_value(JsonValue value, int indent = 0);
+  void dump_string(const char *s);
+  void object_separator(JsonNode *node, int indent);
 };
 
 #endif
